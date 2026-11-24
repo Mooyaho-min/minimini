@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주요 터미널 접안시간 체크 바로가기</title>
+<style>
+  :root {
+    --bg: #f3f6fa;
+    --ink: #14243a;
+    --sub: #5b6b80;
+    --card: #ffffff;
+    --line: #d6dee9;
+    --accent: #0b5cad;
+    --accent-dark: #084a8c;
+    --warn: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 32px 20px 48px; }
+  h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.5px; }
+  .lead { color: var(--sub); margin: 0 0 28px; font-size: 15px; }
+  h2 {
+    font-size: 17px; margin: 28px 0 12px; padding-left: 10px;
+    border-left: 4px solid var(--accent);
+  }
+  h2 small { color: var(--sub); font-weight: normal; font-size: 13px; margin-left: 6px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));  /* 항구별 한 줄 (가장 많은 신항 7곳 기준) */
+    gap: 10px;
+  }
+  @media (max-width: 1000px) {  /* 화면이 좁으면 여러 줄로 */
+    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+  .card {
+    display: flex; flex-direction: column; gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 12px 10px;
+    text-decoration: none; color: inherit;
+    transition: transform .12s, box-shadow .12s, border-color .12s;
+  }
+  a.card:hover, a.card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 6px 16px rgba(11, 92, 173, .14);
+    outline: none;
+  }
+  .code { font-size: 19px; font-weight: 700; color: var(--accent-dark); letter-spacing: .5px; }
+  .name { font-size: 12.5px; word-break: keep-all; color: var(--ink); }
+  .go { margin-top: 6px; font-size: 12px; color: var(--accent); font-weight: 600; }
+  .note { margin-top: 4px; font-size: 11px; color: var(--warn); }
+  .card.nolink { background: #fafbfc; border-style: dashed; }
+  .card.nolink .code { color: var(--sub); }
+  .foot {
+    margin-top: 36px; padding: 14px 16px;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    font-size: 13px; color: var(--sub);
+  }
+  .foot b { color: var(--ink); }
+  .foot ul { margin: 6px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>주요 터미널 접안시간 체크 바로가기</h1>
+  <p class="lead">터미널을 누르면 그 터미널의 접안시간(선석배정) 화면이 새 탭으로 열립니다.<br>
+     열린 탭에서 새로고침(F5)을 누르면 그 시점의 최신 값이 나옵니다.</p>
+
+  <h2>부산항 · 신항 <small>7곳</small></h2>
+  <div class="grid" id="grid-new"></div>
+
+  <h2>부산항 · 북항 <small>2곳</small></h2>
+  <div class="grid" id="grid-north"></div>
+
+  <h2>인천항 <small>5곳</small></h2>
+  <div class="grid" id="grid-incheon"></div>
+
+  <h2>평택항 <small>3곳</small></h2>
+  <div class="grid" id="grid-pyeongtaek"></div>
+
+  <div class="foot">
+    <b>안내</b>
+    <ul>
+      <li>화면의 시간은 각 터미널 홈페이지가 보여 주는 값입니다. 배차에 쓰기 전 해당 터미널 화면의 값을 기준으로 확인하세요.</li>
+      <li>BCT는 홈페이지 메인으로 연결되므로, 선석 배정현황 메뉴를 눌러 확인하세요.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // 터미널 목록. url에는 접안시간(선석배정) 화면 주소를 넣는다.
+  // note가 있으면 카드에 주황색 확인 문구가 표시된다. url이 비어 있으면 눌러도 열리지 않는다.
+  const TERMINALS = [
+    { zone: "new",   code: "PNC",  name: "부산신항만",
+      url: "https://svc.pncport.com/info/CMS/Ship/Info.pnc" },
+    { zone: "new",   code: "PNIT", name: "국제신항만 (부산신항국제터미널)",
+      url: "https://www.pnitl.com/infoservice/vessel/vslScheduleList.jsp" },
+    { zone: "new",   code: "HPNT", name: "현대신항만",
+      url: "https://www.hpnt.co.kr/infoservice/vessel/vslScheduleList.jsp" },
+    { zone: "new",   code: "HJNC", name: "한진신항만",
+      url: "https://www.hjnc.co.kr/esvc/vessel/berthScheduleT" },
+    { zone: "new",   code: "BNCT", name: "BNCT",
+      url: "https://www.bnctkorea.com/esvc/vessel/berthScheduleT" },
+    { zone: "new",   code: "BCT",  name: "부산컨테이너터미널",
+      url: "https://info.bct2-4.com/infoservice/",
+      note: "메인 화면으로 연결됨. 선석 배정현황 메뉴를 눌러야 함" },
+    { zone: "new",   code: "DGT",  name: "동원신항터미널",
+      url: "https://info.dgtbusan.com/DGT/esvc/vessel/berthScheduleT" },
+    { zone: "north", code: "BPT",  name: "BPT신선대 / BPT감만",
+      url: "https://info.bptc.co.kr/content/sw/frame/berth_status_text_frame_sw_kr.jsp" },
+    { zone: "north", code: "HGCT", name: "허치슨감만터미널",
+      url: "https://custom.hktl.com/jsp/T01/sunsuk.jsp" },
+
+    { zone: "incheon", code: "ICT",  name: "인천컨테이너터미널", url: "https://www.psa-ict.co.kr/Schedule" },
+    { zone: "incheon", code: "E1CT", name: "E1터미널", url: "https://www.e1ct.co.kr/info/terminal/berthText" },
+    { zone: "incheon", code: "IFPC", name: "인천국제여객터미널", url: "https://www.ifpc.co.kr/INFO/" },
+    { zone: "incheon", code: "SNCT", name: "인천선광신항", url: "https://snct.sun-kwang.co.kr/infoservice/webpage/vessel/vslScheduleText.jsp" },
+    { zone: "incheon", code: "HJIT", name: "인천한진신항", url: "https://esvc2.hjit.co.kr/HJIT/esvc/vessel/berthScheduleT" },
+    { zone: "pyeongtaek", code: "PCTC", name: "한진평택컨테이너터미널", url: "https://www.pctc21.com/esvc/vessel/berthScheduleT" },
+    { zone: "pyeongtaek", code: "PNCT", name: "동방아이포트", url: "http://www.pnct.co.kr/infoservice/index.html",
+      note: "메인 화면으로 연결됨. 선석 메뉴를 눌러야 함" },
+    { zone: "pyeongtaek", code: "대아항운", name: "대아항운", url: "http://www.daeryong-cy.co.kr:8080/iService/kr/vslList.jsp" }
+  ];
+
+  function makeCard(t) {
+    const hasUrl = !!t.url;
+    const el = document.createElement(hasUrl ? "a" : "div");
+    el.className = "card" + (hasUrl ? "" : " nolink");
+    if (hasUrl) {
+      el.href = t.url;
+      el.target = "_blank";
+      el.rel = "noopener";
+    }
+    const code = document.createElement("span"); code.className = "code"; code.textContent = t.code;
+    const name = document.createElement("span"); name.className = "name"; name.textContent = t.name;
+    el.append(code, name);
+    const go = document.createElement("span"); go.className = "go";
+    go.textContent = hasUrl ? "접안시간 보기 →" : "주소 확인 필요";
+    el.append(go);
+    if (hasUrl && t.note) {
+      const n = document.createElement("span"); n.className = "note"; n.textContent = "※ " + t.note;
+      el.append(n);
+    }
+    return el;
+  }
+
+  TERMINALS.forEach(t => {
+    document.getElementById("grid-" + t.zone).append(makeCard(t));
+  });
+</script>
+</body>
+</html>
