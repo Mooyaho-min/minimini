@@ -72,7 +72,7 @@
 <body>
 <div class="wrap">
   <h1>터미널 선석 배정현황 체크 바로가기</h1>
-  <p class="lead">터미널을 누르면 그 터미널의 접안시간(선석배정) 화면이 새 탭으로 열립니다.<br>
+  <p class="lead">터미널을 누르면 그 터미널의 선석 배정현황 화면이 새 탭으로 열립니다.<br>
      열린 탭에서 새로고침(F5)을 누르면 그 시점의 최신 값이 나옵니다.</p>
 
   <h2>부산항 · 신항 <small>7곳</small></h2>
@@ -97,7 +97,7 @@
 </div>
 
 <script>
-  // 터미널 목록. url에는 접안시간(선석배정) 화면 주소를 넣는다.
+  // 터미널 목록. url에는 선석 배정현황 화면 주소를 넣는다.
   // note가 있으면 카드에 주황색 확인 문구가 표시된다. url이 비어 있으면 눌러도 열리지 않는다.
   const TERMINALS = [
     { zone: "new",   code: "PNC",  name: "부산신항만",
@@ -127,7 +127,7 @@
     { zone: "incheon", code: "HJIT", name: "인천한진신항", url: "https://esvc2.hjit.co.kr/HJIT/esvc/vessel/berthScheduleT" },
     { zone: "pyeongtaek", code: "PCTC", name: "한진평택컨테이너터미널", url: "https://www.pctc21.com/esvc/vessel/berthScheduleT" },
     { zone: "pyeongtaek", code: "PNCT", name: "동방아이포트", url: "http://www.pnct.co.kr/infoservice/index.html",
-      note: "메인 화면으로 연결됨. 선석 메뉴를 눌러야 함" },
+      note: "메인 화면으로 연결됨. 선석 배정현황 메뉴를 눌러야 함" },
     { zone: "pyeongtaek", code: "대아항운", name: "대아항운", url: "http://www.daeryong-cy.co.kr:8080/iService/kr/vslList.jsp" }
   ];
 
